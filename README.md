@@ -99,7 +99,7 @@ File with footnote text, `sample2.html`:
     </body></html> 
  
 As you can see, diacritics are preserved, but no styling of characters is 
-provided, as `příliš \textit{žluťoučký}` s converted to `příliš žluťoučký`.
+provided, as `příliš \textit{žluťoučký}` is converted to `příliš žluťoučký`.
 
 How it works
 ------------
