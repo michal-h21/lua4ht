@@ -1,0 +1,14 @@
+\ProvidesPackage{lua4ht}
+\RequirePackage{luacode, etoolbox}
+\RequirePackage[xhtml, charset=utf-8, mathml, new-accents]{tex4ht}
+
+\begin{luacode*}
+	cbl = require "lua4ht"
+	luatexbase.add_to_callback("pre_output_filter", cbl.callback,"lua4ht")
+\end{luacode*}
+
+\AfterEndDocument{%
+	\luaexec{%
+	  cbl.finish()
+  }
+}
