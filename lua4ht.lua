@@ -10,10 +10,18 @@ local whatsit_id = 8
 local glue_id = 10
 local kern_id = 11
 local utfchar = unicode.utf8.char
+local types = node.types()
 
 local input =  nil --io.open(tex.jobname .. ".txt","w")
 local opened_files = {}
 local file_stack = {}
+
+function bit(p) 
+	return 2 ^ (p - 1) -- 1-based indexing 
+end -- Typical call: if hasbit(x, bit(3)) then ... i
+function hasbit(x, p) 
+	return x % (p + p) >= p 
+end
 
 WriterClass = {}
 WriterClass.__index = WriterClass
@@ -50,7 +58,10 @@ WriterClass.noskip_char = function(self)
 end
 
 WriterClass.all = function(self, s)
-  self.full:write(s)
+	local input = self.input
+	if input then 
+    self.full:write(s)
+	end
 end
 
 WriterClass.lg= function(self,s)
@@ -111,7 +122,12 @@ process =  function(head)
       if n.subtype > 0 and n.components then
         chr = process(n.components)
       else
-        chr = utfchar(n.char)
+				local s = n.subtype
+				if not hasbit(s,bit(1)) then
+          chr = utfchar(n.char)
+				else
+					print("Bit 1 set",n.char,s)
+				end
       end
       w:write(chr)
       table.insert(current, chr)
@@ -126,6 +142,9 @@ process =  function(head)
       local k =  process_tex4ht(n.data) -- "<!-- " .. n.data .. " -->"
       --w:write(k)
       table.insert(current, k)
+		else
+			local subtype = n.subtype or ""
+			w:all("["..types[id]..":"..subtype .."]")
     end
   end
   return table.concat(current)

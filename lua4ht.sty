@@ -1,6 +1,9 @@
 \ProvidesPackage{lua4ht}
 \RequirePackage{luacode, etoolbox}
+
+\@ifpackageloaded{tex4ht}{}{%
 \RequirePackage[xhtml, charset=utf-8, mathml, new-accents]{tex4ht}
+}
 
 \begin{luacode*}
 	cbl = require "lua4ht"
