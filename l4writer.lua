@@ -3,6 +3,8 @@ WriterClass.__index = WriterClass
 
 local writer = function()
   local self  = WriterClass --setmetatable({},WriterClass)
+	local tex = tex or {}
+	tex.jobname = tex.jobname or "noname"
   self.full = io.open(tex.jobname .. ".full","w")
   self.lg_file = io.open(tex.jobname..".lg","w")
   self.skip = false
