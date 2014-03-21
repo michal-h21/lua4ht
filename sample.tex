@@ -1,10 +1,47 @@
 \documentclass{article}
-
+%\usepackage[utf8]{luainputenc}
+%\usepackage[T1]{fontenc}
 %\usepackage{lua4ht}
 \usepackage{fontspec}
 \usepackage{unicode-math}
+\usepackage{luacode}
+\begin{luacode*}
+	local glyph_id = node.id "glyph"
+	usedfonts = {}
+        local char  = unicode.utf8.char
+  function clb(head)
+          local mn = {}
+	  local current = nil
+          local cf = nil
+          local t=""
+	  for n in node.traverse_id(glyph_id,head) do
+	    local f = n.font
+            cf = f
+            if cf ~= pf then
+               if t:len()>0 then
+                table.insert(mn, {id = pf, text = t})
+               end
+               t=""
+            end
+            t = t .. char(n.char)
+            pf = cf
+	    if not usedfonts[f] then
+		print("font: "..f)
+	        usedfonts[f] = true
+	    end
+	  end
+          --table.insert(mn,{id=pf, text=t})
+          for _,k in pairs(mn) do
+            local k = k or {}
+            print(k.id,k.text)
+          end
+          print(cf,t)
+	  return head
+	end 
+	luatexbase.add_to_callback("pre_linebreak_filter",clb,"Hello")
+\end{luacode*}
 \begin{document}
-Příliš \textit{žluťoučký} kůň úpěl ďábělské ódy\footnote{Some text in a footnote}
+Příliš \textit{žluťoučký uf} kůň úpěl ďábělské ódy\footnote{Some text in a footnote}
 
 grafika, filosofie
 
