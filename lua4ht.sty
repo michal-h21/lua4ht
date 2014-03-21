@@ -12,8 +12,8 @@ function(head, display, penalty)
   cbl.callback(head)
   return node.mlist_to_hlist(head, display, penalty)
 end,"conveert to mathml?")
+	luatexbase.add_to_callback("pre_output_filter", cbl.callback,"lua4ht")
 \end{luacode*}
-%	luatexbase.add_to_callback("pre_output_filter", cbl.callback,"lua4ht")
 
 \AfterEndDocument{%
 	\luaexec{%
