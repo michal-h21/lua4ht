@@ -26,3 +26,6 @@ setmetatable(callback, mt_callback)
 
 local k = callback:new()
 k:hej()
+
+local j = k:inherit({hello = "dd jj  aa"},{})
+j:hej()
