@@ -50,6 +50,7 @@ mt_callback.__index = {
 		end
 	end
 }
+	local s = s or ""
 
 
 setmetatable(callback, mt_callback)
@@ -83,3 +84,5 @@ k:run(actions)
 --   ignore one char (maybe discard next node directly)
 --   math nodes
 --   NoFonts -- also stack
+
+return callback
