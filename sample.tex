@@ -6,44 +6,77 @@
 \usepackage{unicode-math}
 \usepackage{luacode}
 \begin{luacode*}
-	local glyph_id = node.id "glyph"
-	usedfonts = {}
-        local char  = unicode.utf8.char
-  function clb(head)
-          local mn = {}
-	  local current = nil
-          local cf = nil
-          local t=""
-	  for n in node.traverse_id(glyph_id,head) do
-	    local f = n.font
-            cf = f
-            if cf ~= pf then
-               if t:len()>0 then
-                table.insert(mn, {id = pf, text = t})
-               end
-               t=""
-            end
-            t = t .. char(n.char)
-            pf = cf
-	    if not usedfonts[f] then
-		print("font: "..f)
-	        usedfonts[f] = true
-	    end
-	  end
-          --table.insert(mn,{id=pf, text=t})
-          for _,k in pairs(mn) do
-            local k = k or {}
-            print(k.id,k.text)
-          end
-          print(cf,t)
-	  return head
-	end 
-	luatexbase.add_to_callback("pre_linebreak_filter",clb,"Hello")
+local glyph_id = node.id "glyph"
+normalfont = 0
+usedfonts = {}
+local char  = unicode.utf8.char
+function clb(head)
+  local mn = {}
+  local current = nil
+  local cf = nil
+  local t=""
+  local function hcode(c)
+    local p = node.new("whatsit",3)
+    p.data = "t4ht="..c
+    return p
+  end
+  local start_font = function(n, id)
+    if id~=normalfont then
+      head = node.insert_before(head, n, hcode("<span class='font-"..id.."'>"))
+    end
+  end
+  local end_font = function(n, id)
+    if id and id~= normalfont then
+      print("vkladame endfont" ..id)
+      head = node.insert_after(head, n, hcode("</span>"))
+    end
+  end
+  local start = true
+  for n in node.traverse_id(glyph_id,head) do
+    local f = n.font
+    if start then 
+      start_font(n, f)
+    end
+    start = false
+    cf = f
+    if cf ~= pf then
+      if t:len()>0 then
+        table.insert(mn, {id = pf, text = t})
+        end_font(n.prev, pf)
+        start_font(n, cf)
+      end
+      t=""
+    end
+    t = t .. char(n.char)
+    pf = cf
+    if not usedfonts[f] then
+      print("font: "..f)
+      usedfonts[f] = true
+    end
+  end
+  --table.insert(mn,{id=pf, text=t})
+  for _,k in pairs(mn) do
+    local k = k or {}
+    print(k.id,k.text)
+  end
+  print(cf,t)
+  end_font(node.tail(head), cf)
+  return head
+end 
+luatexbase.add_to_callback("pre_linebreak_filter",clb,"Hello")
 \end{luacode*}
+\newcommand\registernormal{%
+  % we need to find normal font, it will be left without span elements
+  \setbox0=\hbox{\normalfont a}
+  \luaexec{for n in node.traverse_id(37, tex.box[0].head) do
+    normalfont=n.font
+  end}
+}
 \begin{document}
+  \registernormal
 Příliš \textit{žluťoučký uf} kůň úpěl ďábělské ódy\footnote{Some text in a footnote}
 
-grafika, filosofie
+grafika, \textsc{filosofie}
 
 \hrule
 
