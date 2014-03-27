@@ -119,8 +119,8 @@ local tex4ht = callback:inherit({},{
 		self.parent  = parent
 		self.node    = parent.node
 		local events = self.events or {}
-		--local state = self.state 
 		self.state = parent.state
+		local state = self.state 
 		local node   = self.node 
 		local data = node.data or ""
 		local action, rest = data:match("t4ht(.)(.*)")
@@ -128,9 +128,9 @@ local tex4ht = callback:inherit({},{
 		local currevent = events[action] or {}
 		local fn = currevent[state] or currevent['*']
 		if fn then
-			fn(self)
+			state = fn(self) or state
 		else
-			parent:all(data)
+			self:comment()
 		end
 	end,
 	subtype = function(self)
