@@ -42,6 +42,7 @@ local j = callback:inherit({},{
 		--self:open(tex.jobname..".txt")
 		local state = self.state
 		local ev = self.events or {}
+		self.head = head
 		for n in node.traverse(head) do
 			local id = n.id
 			self.node = n
@@ -194,6 +195,15 @@ tex4ht:default "@" (function(self)
 		parent:skip_char()
 	elseif subtype == "]" then
 		parent:noskip_char()
+	elseif subtype == "+" then
+		-- xml entity insertion
+		-- maybe char could be also inserted?
+		local entity = rest:gsub("{([^}]+)}", function(c)
+			return char(tonumber(c))
+		end)
+		local n = self.node
+		node.remove(parent.head,node.next(n))
+		parent:write(entity)
 	else
 		self:comment()
 	end
