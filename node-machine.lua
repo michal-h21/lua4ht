@@ -61,6 +61,13 @@ local j = callback:inherit({},{
 })
 
 local char = unicode.utf8.char
+local escape = {
+	['"'] =   '&quot;',
+	["'"] =    '&apos;',
+	["<"] =   '&lt;',
+	['>'] =  '&gt;',
+	['&'] =  '&amp;'
+}
 
 j:default (37) (function(self)--(node.type "glyph") (function(self)
 	local n = self.node
@@ -69,7 +76,8 @@ j:default (37) (function(self)--(node.type "glyph") (function(self)
 		self:run(n.components)
 	else
 		local chr = char(n.char)
-		print(chr)
+		chr = escape[chr] or chr
+		--print(chr)
 		self:write(chr)
   end
 end)
