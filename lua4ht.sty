@@ -6,17 +6,32 @@
 }
 
 \begin{luacode*}
-	cbl = require "lua4ht"
+	local math_clb = require "lua4ht"
+	clb  = require "node-machine"
+  font_machine = require "font-machine"
 luatexbase.add_to_callback('mlist_to_hlist',
 function(head, display, penalty)
-  cbl.callback(head)
+  math_clb.callback(head)
   return node.mlist_to_hlist(head, display, penalty)
 end,"conveert to mathml?")
-	luatexbase.add_to_callback("pre_output_filter", cbl.callback,"lua4ht")
+  local page_clb = function(head)
+	  return clb:run(head)
+	end
+	luatexbase.add_to_callback("pre_output_filter", page_clb,"lua4ht")
 \end{luacode*}
+
+\newcommand\registernormal{%                                                    
+  % we need to find normal font, it will be left without span elements          
+  \setbox0=\hbox{\normalfont a}
+  \luaexec{for n in node.traverse_id(37, tex.box[0].head) do
+    font_machine.normal(n.font)
+  end}
+}
+
+\AtBeginDocument{\registernormal}
 
 \AfterEndDocument{%
 	\luaexec{%
-	  cbl.finish()
+	  clb:finish()
   }
 }
