@@ -12,7 +12,7 @@ local my_getfont = function (id)
 	if f then
 		return f
 	end
-	return font.fonts[id]
+	return font.getfont(id)   or font.fonts[id]
 end
 
 local function make_info(name,size, info)
