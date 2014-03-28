@@ -15,13 +15,18 @@ local my_getfont = function (id)
 	return font.fonts[id]
 end
 
-local function make_info(name,size, weight, style)
-	local weight = weight or "normal"
-	local style= style or "normal"
-	return {name= name, size=size, weight = weight, style=style}
+local function make_info(name,size, info)
+	local info = info or {}
+	info.weight = info.weight or "normal"
+	info.style= info.style or "normal"
+  info.name = name
+	info.size = size
+	return info
 end
 
-local function get_opentype(name)
+local function get_opentype(f)
+	local name = f.fullname
+	if not name then return nil end
 	local styles  = {["[iI]talic"]="italic", ["[Oo]blique"]="oblique"}
 	local weights = {["[bB]old"]="bold"}
 	local style = "normal"
@@ -32,7 +37,10 @@ local function get_opentype(name)
 	for reg, w in pairs(weights) do
 		if name:match(reg) then weight = w end
 	end
-	return {weight, style}
+	local family = f.family_name or name:match("([^%-]+)") or name
+	family = family:match("(.-)[0-9]*$") or family
+	print("family",family)
+	return {weight = weight, style = style, family = family}
 end
 
 local function get_tex(name)
@@ -48,9 +56,9 @@ local function get_fontinfo(font_id)
 	local name = f.name
 	local both = full or name
 	if not both then return nil, "Cannot get font name for font id: "..font_id end
-	local info = namecache[both] or get_opentype(full) or get_tex(name) or {}
+	local info = namecache[both] or get_opentype(f) or get_tex(name) or {}
 	namecache[both] = info
-	return make_info(both, f.size, info[1],info[2]) 
+	return make_info(both, f.size, info) 
 end
 
 M.get_fontinfo = get_fontinfo
