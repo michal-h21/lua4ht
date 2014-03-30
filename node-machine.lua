@@ -83,11 +83,11 @@ j:default (37) (function(self)--(node.type "glyph") (function(self)
 end)
 
 -- glyph
-j:event (37) "math_on" (function(self)
+--[[j:event (37) "math_on" (function(self)
 	local n = self.node
 	print("math: ".. char(n.char))
 end)
-
+--]]
 -- glue
 j:default (10) (function(self)
 	local n = self.node
@@ -160,13 +160,13 @@ tex4ht:default "=" (function(self)
 	local rest   = self.rest
 	parent:write(rest)
 end)
-
+--[[
 tex4ht:event "=" "math_on" (function(self)
 	local parent = self.parent
 	local rest = self.rest
 	parent:all("math mode on: "..rest)
 end)
-
+]]
 -- open default file with extension
 tex4ht:default "." (function(self)
 	local parent = self.parent
