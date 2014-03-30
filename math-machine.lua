@@ -19,11 +19,10 @@ end)
 mnode:default(31) (function(self)
   local n= self.node
   local id = n.fam
-  local fnt = n.font
   local families = {"math italic", "symbols", "extension", "it text", "slanted text", "bold text", "typewriter", [0]="roman"}
   local name=families[id] or "Unknown family"
   --local name = fnt.fullname or fnt.name
-  self:ill ("math.char: "..char(n.char).." : "..fnt)
+  self:ill ("math.char: "..char(n.char).." : "..id)
 end)
 
 -- sub_box
