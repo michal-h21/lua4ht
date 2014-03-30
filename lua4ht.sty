@@ -6,18 +6,19 @@
 }
 
 \begin{luacode*}
-	local math_clb = require "lua4ht"
-	clb  = require "node-machine"
-  font_machine = require "font-machine"
+local math_clb = require "math-machine"
+clb  = require "node-machine"
+font_machine = require "font-machine"
 luatexbase.add_to_callback('mlist_to_hlist',
 function(head, display, penalty)
-  math_clb.callback(head)
+  math_clb:run(head)
   return node.mlist_to_hlist(head, display, penalty)
 end,"conveert to mathml?")
-  local page_clb = function(head)
-	  return clb:run(head)
-	end
-	luatexbase.add_to_callback("pre_output_filter", page_clb,"lua4ht")
+--
+local page_clb = function(head)
+  return clb:run(head)
+end
+luatexbase.add_to_callback("pre_output_filter", page_clb,"lua4ht")
 \end{luacode*}
 
 \newcommand\registernormal{%                                                    
