@@ -9,11 +9,13 @@
 local math_clb = require "math-machine"
 clb  = require "node-machine"
 font_machine = require "font-machine"
+local patch_latin1 = require "l4patchlatin1"
+luatexbase.add_to_callback("open_read_file", patch_latin1, "Convert html4.4ht to utf8")
 luatexbase.add_to_callback('mlist_to_hlist',
 function(head, display, penalty)
   math_clb:run(head)
   return node.mlist_to_hlist(head, display, penalty)
-end,"conveert to mathml?")
+end,"convert to mathml?")
 --
 local page_clb = function(head)
   return clb:run(head)
