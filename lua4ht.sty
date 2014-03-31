@@ -13,8 +13,13 @@ local patch_latin1 = require "l4patchlatin1"
 luatexbase.add_to_callback("open_read_file", patch_latin1, "Convert html4.4ht to utf8")
 luatexbase.add_to_callback('mlist_to_hlist',
 function(head, display, penalty)
+  clb:all "Call to math callback"
   math_clb:run(head)
-  return node.mlist_to_hlist(head, display, penalty)
+  local x = node.mlist_to_hlist(head, display, penalty)
+	for c in node.traverse_id(node.id("glyph"),x) do
+	  clb:all("math font: "..c.font)
+	end
+	return x
 end,"convert to mathml?")
 --
 local page_clb = function(head)

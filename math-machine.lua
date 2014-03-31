@@ -21,6 +21,7 @@ mnode:default(31) (function(self)
   local id = n.fam
   local families = {"math italic", "symbols", "extension", "it text", "slanted text", "bold text", "typewriter", [0]="roman"}
   local name=families[id] or "Unknown family"
+	local st = n.subtype
   --local name = fnt.fullname or fnt.name
   self:ill ("math.char: "..char(n.char).." : "..id)
 end)
