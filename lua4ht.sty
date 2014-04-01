@@ -16,9 +16,6 @@ function(head, display, penalty)
   clb:all "Call to math callback"
   math_clb:run(head)
   local x = node.mlist_to_hlist(head, display, penalty)
-	for c in node.traverse_id(node.id("glyph"),x) do
-	  clb:all("math font: "..c.font)
-	end
 	return x
 end,"convert to mathml?")
 --
