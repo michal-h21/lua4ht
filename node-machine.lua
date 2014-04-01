@@ -38,22 +38,39 @@ local j = callback:inherit({},{
 	finish = function(self)
 		self.writer:finish()
 	end,
-	run = function(self, head)
-		--self:open(tex.jobname..".txt")
+	run_event = function(self,id)
 		local state = self.state
 		local ev = self.events or {}
+		local currevent = ev[id] or {}
+		local fn = currevent[state] or currevent['*']
+		local data = nil
+		if not fn then 
+			print ("No callback for id "..id.. " and state ".. state)
+		else
+			local nstate
+			nstate, data = fn(self) 
+			state = nstate or state
+		end
+		self.state = state
+		return data
+	end,
+	run = function(self, head)
+		--self:open(tex.jobname..".txt")
+		--local state = self.state
+		--local ev = self.events or {}
 		self.head = head
 		for n in node.traverse(head) do
 			local id = n.id
 			self.node = n
-			local currevent = ev[id] or {}
-			local fn = currevent[state] or currevent['*']
-			if not fn then 
-				print ("No callback for id "..id.. " and state ".. state)
-			else
-				state = fn(self) or state
-			end
-			self.state = state
+			self:run_event(id)
+			--local currevent = ev[id] or {}
+			--local fn = currevent[state] or currevent['*']
+			--if not fn then 
+			--	print ("No callback for id "..id.. " and state ".. state)
+			--else
+			--	state = fn(self) or state
+			--end
+			--self.state = state
 		end
 		--self:close()
 		return head
