@@ -16,7 +16,7 @@ dec_indent = function(self, how)
 end,
 types = {number ="mn", var="mi", op="mo", normal = "mi mathvariant='normal'"},
 make_data = function(self, data)
-	local typ = data.typ
+	local typ = data.type
 	local tag = self.types[typ]
 	local d  = data.char
 	if tag then
@@ -36,27 +36,46 @@ kernel = function(self, head)
 	elseif id == 33 then
 		print "kernel: math list"
 		local n =head.head
-		local last = nil
+		local last = niatul
 		local typ = nil
 		local current = {}
-		local records = {typ = "list"}
+		local records = {type = "list"}
 		while n do
 			local id = n.id
 			self.node = n
-			local data = self:run_event(id)
-			if last and data and data.typ == last then 
-				current.char = current.char + data.char
-				typ=data.typ
-			elseif last and data then 
-				current.data = self:make_data(current)
-				table.insert(records, current)
-				current = data
-				typ=data.typ
-			elseif data then
-				current = data
+			local c = self:run_event(id)
+			if c.event then
+				for _, data in ipairs(c) do
+					if last and data and data.type == last then 
+						print "Všechno stejný"
+						current.char = current.char .. data.char
+						typ=data.typ
+					elseif last and data then 
+						print "last a data"
+						-- current.data = self:make_data(current)
+						current.char = self:make_data(current)
+						table.insert(records, current)
+						current = data
+						typ=data.typ
+					elseif data then
+						print "jen data"
+						for k,v in pairs(data) do
+							print(k,v)
+						end
+						current = data
+					end
+					last = data.type
+					print(last)
+				end
+				table.insert(records,current)
 			end
-			last = typ
 			n = node.next(n)
+		end
+		print "return records"
+		for _,cv in ipairs(records) do
+			for k,v in pairs(cv) do
+			 print(k,v)
+		 end
 		end
 		return records
 	end
@@ -76,7 +95,20 @@ mnode:default (16) (function(self)
   self:ill("math node "..n.subtype)
 	--self.indent = indent + 2
   self:inc_indent()
+	local x = {}
 	local x = self:kernel(n.nucleus)
+	--[[if x.event == "char" then
+		for _,v in ipairs(x) do
+			for k,x in pairs(v) do
+				if type(x) == "table" then
+				  print(k, x.char)
+				else
+					print("no table", k,x)
+				end
+			end
+		end
+	end
+	--]]
   self:ill("ncleus")
   self:run(n.nucleus)
   self:ill("sub")
