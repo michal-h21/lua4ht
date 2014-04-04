@@ -36,14 +36,14 @@ kernel = function(self, head)
 	elseif id == 33 then
 		print "kernel: math list"
 		local n =head.head
-		local last = niatul
+		local last = nil
 		local typ = nil
 		local current = {}
 		local records = {type = "list"}
 		while n do
 			local id = n.id
 			self.node = n
-			local c = self:run_event(id)
+			local c = self:run_event(id) or {}
 			if c.event then
 				for _, data in ipairs(c) do
 					if last and data and data.type == last then 
@@ -67,12 +67,13 @@ kernel = function(self, head)
 					last = data.type
 					print(last)
 				end
-				table.insert(records,current)
 			end
 			n = node.next(n)
 		end
+		table.insert(records,current)
 		print "return records"
 		for _,cv in ipairs(records) do
+			print "Vracíme records"
 			for k,v in pairs(cv) do
 			 print(k,v)
 		 end
@@ -110,7 +111,7 @@ mnode:default (16) (function(self)
 	end
 	--]]
   self:ill("ncleus")
-  self:run(n.nucleus)
+  -- self:run(n.nucleus)
   self:ill("sub")
   self:run(n.sub)
   self:ill("sup")
