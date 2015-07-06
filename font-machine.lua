@@ -3,11 +3,13 @@ local M = {}
 local styles = require "l4fontstyles"
 local glyph_id = node.id "glyph"
 local whatsit_id = node.id "whatsit"
+local math_id = node.id "math"
 local nofonts = 0 
 local normalfont = 0
 local normalinfo = nil
 local usedfonts = {}
 local char  = unicode.utf8.char
+local spanlevel = 0
 
 local function htspecial(c)
 	local p = node.new("whatsit",3)
@@ -19,6 +21,16 @@ local function hcode(c)
 	return htspecial("="..c)
 end
 
+local add_nofonts = function()
+  nofonts = nofonts + 1
+end
+
+local sub_nofonts = function()
+  if nofonts > 0 then
+    nofonts = nofonts - 1
+  end
+end
+
 local function css(c)
 	return htspecial("+@Css: "..c)
 end
@@ -27,15 +39,20 @@ local font_name = function(id)
 	return 'font-'..id
 end
 
+
 local start_font = function(n, id)
 	if id~=normalfont and nofonts < 1 then
+    spanlevel = spanlevel + 1
+    print("vkladame start font", id)
 		head = node.insert_before(head, n, hcode("<span class='"..font_name(id).."'>"))
 	end
 end
 
 local stop_font = function(n, id, s)
 	local s = s or "</span>"
-	if id and id~= normalfont and nofonts < 1 then
+  s = s .. "<!-- ".. spanlevel .. " -->"
+	if id and id~= normalfont and nofonts < 1 and spanlevel > 0 then
+    spanlevel = spanlevel - 1
 		print("vkladame endfont" ..id)
 		head = node.insert_after(head, n, hcode(s))
 	end
@@ -74,17 +91,25 @@ end
 
 
 function font_clb(head)
+  local stop_tex4ht = function()
+    stop_font(node.prev(node.prev(n)),cf, "<!-- 4ht --></span>")
+    cf = nil
+    start = true
+  end
 	local mn = {}
 	local current = nil
 	local cf = nil
 	local t=""
 	local start = true
+  local pf = cf
+  spanlevel = 0
 	for n in node.traverse(head) do
 		local id = n.id
 		if id == glyph_id then
 			local f = n.font
 			if start then 
 				start_font(n, f)
+        pf = f
 			end
 			start = false
 			cf = f
@@ -93,6 +118,7 @@ function font_clb(head)
 					stop_font(n.prev, pf)
 					start_font(n, cf)
 				end
+        print(t)
 				t=""
 			end
 			t = t .. char(n.char)
@@ -102,27 +128,30 @@ function font_clb(head)
 				local cssnode = make_css(f,s)
 				node.insert_after(head, n, cssnode)
 			end
+    elseif id == math_id then
+      if n.subtype == 0 then
+				stop_tex4ht()
+        add_nofonts()
+      else
+        sub_nofonts()
+        start = true
+      end
 		elseif id == whatsit_id and n.subtype == 3 then 
 			--print "tex4ht node"
 			local data = n.data
 			local t,rest = data:match "t4ht(.)(.*)"
-			local stop_tex4ht = function()
-				stop_font(node.prev(node.prev(n)),cf, "<!-- 4ht --></span>")
-				cf = nil
-				start = true
-			end
 			if t == "=" then
 				--print("Stop font 4ht")
 				stop_tex4ht()
 			elseif t== ";" then
 				-- support for \NoFonts and \EndNoFonts
-				-- todo: it doesn't work. why?
 				stop_tex4ht()
 				if rest == "8" then
-					nofonts = nofonts + 1
+          add_nofonts()
 					print("nofonts",nofonts)
 				elseif rest=="9" then
-					nofonts = nofonts - 1
+          sub_nofonts()
+          start = true
 					print ("endnofonts", nofonts)
 				end
 			else
@@ -132,7 +161,10 @@ function font_clb(head)
 		pf = cf
 	end
 	--table.insert(mn,{id=pf, text=t})
-	stop_font(node.tail(head), cf, "<!-- stop --></span>")
+  if not start then
+    print(t)
+	  stop_font(node.tail(head), cf, "<!-- stop --></span>")
+  end
 	return head
 end 
 luatexbase.add_to_callback("pre_linebreak_filter",font_clb,"Hello")
