@@ -1,10 +1,11 @@
 local clb = require "node-machine"
 
-local mnode = clb:inherit({},{ill=function(self,s) 
-	local indent = self.indent or 0 
-	local rep = string.rep(" ",indent)
-	self:all(rep ..s.."\n") 
-end ,
+local mnode = clb:inherit({},{
+  ill=function(self,s) 
+    local indent = self.indent or 0 
+    local rep = string.rep(" ",indent)
+    self:all(rep ..s.."\n") 
+  end ,
 inc_indent = function(self)
 	self.indent = self.indent or 0
 	self.indent = self.indent + 2
