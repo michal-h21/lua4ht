@@ -3,12 +3,12 @@ local M = {}
 
 
 local glyph_id = node.id("glyph")
-local hlist_id = 0
+local hlist_id = node.id("hlist") 
 local vlist_id = node.id("vlist")
-local disc_id = 7
-local whatsit_id = 8
-local glue_id = 10
-local kern_id = 11
+local disc_id = node.id("discretionary")
+local whatsit_id = node.id("discretionary")
+local glue_id = node.id("glue")
+local kern_id = node.id("kern")
 local utfchar = unicode.utf8.char
 local types = node.types()
 
