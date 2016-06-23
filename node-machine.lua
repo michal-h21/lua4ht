@@ -86,7 +86,7 @@ local escape = {
 	['&'] =  '&amp;'
 }
 
-j:default (37) (function(self)--(node.type "glyph") (function(self)
+j:default (node.id "glyph") (function(self)--(node.type "glyph") (function(self)
 	local n = self.node
   local st = n.subtype
   if hasbit(st, bit(2)) then
@@ -106,7 +106,7 @@ end)
 end)
 --]]
 -- glue
-j:default (10) (function(self)
+j:default (node.id "glue") (function(self)
 	local n = self.node
 	local subtype = n.subtype
 	-- test if glue is space
@@ -131,7 +131,7 @@ run_sub_head(j,0)
 run_sub_head(j,1)
 run_sub_head(j,3)
 
-j:default (9) (function(self)
+j:default (node.id "math") (function(self)
 	local n = self.node
 	local st = n.subtype
 	if st == 0 then
@@ -234,7 +234,7 @@ tex4ht:default "@" (function(self)
 	end
 end)
 
-j:default (8) (function(self)
+j:default (node.id "whatsit") (function(self)
 	local n = self.node
 	if n.subtype == 3 then
 	  tex4ht:run(self)
