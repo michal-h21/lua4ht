@@ -9,11 +9,20 @@ function hasbit(x, p)
   return x % (p + p) >= p                                                       
 end   
 
+-- define which glue subtypes will be regarded as spaces
+local set_glue_types = function(types)
+  local t = {}
+  for _,v in ipairs(types) do
+    t[v] = true
+  end
+  return t
+end
+
 local j = callback:inherit({},{
 	node = {},
 	writer = writer(),
-	-- normal space, leftskip, rightskip
-	allowed_space = {[0]=true,[8]=true,[9]=true},
+	-- normal space, leftskip, rightskip, spaceskip
+	allowed_space = set_glue_types{0, 8, 9, 13},
 	open   = function(self, filename)
 		self.writer:open(filename)
 	end,
