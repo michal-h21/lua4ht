@@ -29,7 +29,7 @@ luatexbase.add_to_callback("pre_output_filter", page_clb,"lua4ht")
 \newcommand\registernormal{%                                                    
   % we need to find normal font, it will be left without span elements          
   \setbox0=\hbox{\normalfont a}
-  \luaexec{for n in node.traverse_id(37, tex.box[0].head) do
+  \luaexec{for n in node.traverse_id(node.id("glyph"), tex.box[0].head) do
     font_machine.normal(n.font)
   end}
 }

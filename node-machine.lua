@@ -9,11 +9,20 @@ function hasbit(x, p)
   return x % (p + p) >= p                                                       
 end   
 
+-- define which glue subtypes will be regarded as spaces
+local set_glue_types = function(types)
+  local t = {}
+  for _,v in ipairs(types) do
+    t[v] = true
+  end
+  return t
+end
+
 local j = callback:inherit({},{
 	node = {},
 	writer = writer(),
-	-- normal space, leftskip, rightskip
-	allowed_space = {[0]=true,[8]=true,[9]=true},
+	-- normal space, leftskip, rightskip, spaceskip
+	allowed_space = set_glue_types{0, 8, 9, 13},
 	open   = function(self, filename)
 		self.writer:open(filename)
 	end,
@@ -86,7 +95,7 @@ local escape = {
 	['&'] =  '&amp;'
 }
 
-j:default (37) (function(self)--(node.type "glyph") (function(self)
+j:default (node.id "glyph") (function(self)--(node.type "glyph") (function(self)
 	local n = self.node
   local st = n.subtype
   if hasbit(st, bit(2)) then
@@ -106,7 +115,7 @@ end)
 end)
 --]]
 -- glue
-j:default (10) (function(self)
+j:default (node.id "glue") (function(self)
 	local n = self.node
 	local subtype = n.subtype
 	-- test if glue is space
@@ -131,7 +140,7 @@ run_sub_head(j,0)
 run_sub_head(j,1)
 run_sub_head(j,3)
 
-j:default (9) (function(self)
+j:default (node.id "math") (function(self)
 	local n = self.node
 	local st = n.subtype
 	if st == 0 then
@@ -234,7 +243,7 @@ tex4ht:default "@" (function(self)
 	end
 end)
 
-j:default (8) (function(self)
+j:default (node.id "whatsit") (function(self)
 	local n = self.node
 	if n.subtype == 3 then
 	  tex4ht:run(self)

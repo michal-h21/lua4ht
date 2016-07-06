@@ -1,11 +1,15 @@
 local clb = require "node-machine"
 
-local mnode = clb:inherit({},{
-  ill=function(self,s) 
-    local indent = self.indent or 0 
-    local rep = string.rep(" ",indent)
-    self:all(rep ..s.."\n") 
-  end ,
+local math_char_id = node.id "math_char"
+local sub_box_id = node.id "sub_box"
+local sub_mlist_id = node.id "sub_mlist"
+local noad_id = node.id "noad"
+
+local mnode = clb:inherit({},{ill=function(self,s) 
+	local indent = self.indent or 0 
+	local rep = string.rep(" ",indent)
+	self:all(rep ..s.."\n") 
+end ,
 inc_indent = function(self)
 	self.indent = self.indent or 0
 	self.indent = self.indent + 2
@@ -29,12 +33,12 @@ end,
 kernel = function(self, head)
 	local id = head.id
 	self.node = head
-	if id == 31 then
+	if id == math_char_id then
 		local x = self:run_event(id)
 		return {event = "char", x}
-	elseif id == 32 then
+	elseif id == sub_box_id then
 		return {event="sublist"} 
-	elseif id == 33 then
+	elseif id == sub_mlist_id then
 		print "kernel: math list"
 		local n =head.head
 		local last = nil
@@ -88,7 +92,7 @@ end
 
 local char = unicode.utf8.char
 
-mnode:default (16) (function(self)
+mnode:default (noad_id) (function(self)
 	--local indent = self.indent or 0
 	--indent = indent + 2
 	--self.indent = indent
@@ -123,7 +127,7 @@ mnode:default (16) (function(self)
 end)
 
 -- math char
-mnode:default(31) (function(self)
+mnode:default(math_char_id) (function(self)
   local n= self.node
   local id = n.fam
   local families = {"math italic", "symbols", "extension", "it text", "slanted text", "bold text", "typewriter", [0]="roman"}
@@ -141,7 +145,7 @@ mnode:default(31) (function(self)
 end)
 
 -- sub_box
-mnode:default(32) (function(self)
+mnode:default(sub_box_id) (function(self)
   local n= self.node
 	self:inc_indent()
   self:ill("sub_box")
@@ -150,7 +154,7 @@ mnode:default(32) (function(self)
 end)
 
 -- sub_mlist
-mnode:default (33) (function(self)
+mnode:default (sub_mlist_id) (function(self)
   local n = self.node
 	self:inc_indent()
   self:ill("sub_mlist")
